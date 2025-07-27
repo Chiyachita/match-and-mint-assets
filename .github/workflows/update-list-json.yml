@@ -1,5 +1,8 @@
 name: Update list.json when images change
 
+permissions:
+  contents: write
+
 on:
   push:
     paths:
@@ -17,6 +20,8 @@ jobs:
           ls images/*.svg | jq -R -s -c 'split("\n") | map(select(length > 0)) | map(sub("^images/"; ""))' > list.json
 
       - name: Commit and push changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
