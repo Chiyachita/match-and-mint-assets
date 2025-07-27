@@ -1,0 +1,25 @@
+name: Update list.json when images change
+
+on:
+  push:
+    paths:
+      - 'images/*.svg'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Generate list.json
+        run: |
+          ls images/*.svg | jq -R -s -c 'split("\n") | map(select(length > 0)) | map(sub("^images/"; ""))' > list.json
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add list.json
+          git commit -m "🤖 Auto-update list.json" || echo "No changes to commit"
+          git push
